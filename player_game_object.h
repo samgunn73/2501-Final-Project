@@ -16,6 +16,10 @@ namespace game {
 
             void AddVelocity(const glm::vec3& v);
             void Jump(float jump_strength);
+            bool isAirborne() { return in_air_; }
+            void SetAirborne(bool ab) { in_air_ = ab; }
+            glm::vec3 GetVelocity() { return velocity_; }
+            void SetVelocity(glm::vec3 velocity) { velocity_ = velocity; }
             const float gravity = 9.8f;
             const float restitution = 0.5f;
 

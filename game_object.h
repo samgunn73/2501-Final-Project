@@ -50,6 +50,7 @@ namespace game {
             inline void SetScale(glm::vec2& scale) { scale_ = scale; }
             void SetRotation(float angle);
             void SetTexture(GLuint texture);
+            void SetTilingFactor(glm::vec2 tf) { tiling_factor_ = tf; }
 
             //ghost getter/setter
             bool IsGhost() const;
@@ -61,6 +62,7 @@ namespace game {
             glm::vec3 position_;
             glm::vec2 scale_; // updated
             float angle_;
+            glm::vec2 tiling_factor_;
 
             // Geometry
             Geometry *geometry_;

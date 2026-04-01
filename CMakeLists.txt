@@ -19,6 +19,7 @@ set(HDRS
     timer.h
     particles.h
     particle_system.h
+    platform_game_object.h
 )
  
 set(SRCS
@@ -35,6 +36,7 @@ set(SRCS
     timer.cpp
     particles.cpp
     particle_system.cpp
+    platform_game_object.cpp
     sprite_vertex_shader.glsl
     sprite_fragment_shader.glsl
     bg_fragment_shader.glsl

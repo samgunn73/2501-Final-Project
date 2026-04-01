@@ -8,7 +8,7 @@ namespace game {
 */
 
 PlayerGameObject::PlayerGameObject(const glm::vec3 &position, Geometry *geom, Shader *shader, GLuint texture)
-	: GameObject(position, geom, shader, texture), velocity_(0.0f, 0.0f, 0.0f), in_air_(false) {}
+	: GameObject(position, geom, shader, texture), velocity_(0.0f, 0.0f, 0.0f), in_air_(true) {}
 
 // Update function for moving the player object around
 void PlayerGameObject::Update(double delta_time) {
@@ -22,33 +22,33 @@ void PlayerGameObject::Update(double delta_time) {
     glm::vec3 new_pos = GetPosition() + velocity_ * (float)delta_time;
 
     // Ground collision
-    const float ground_y = -2.0f;
-    if (new_pos.y <= ground_y) {
-        new_pos.y = ground_y;
+    //const float ground_y = -2.0f;
+    //if (new_pos.y <= ground_y) {
+    //    new_pos.y = ground_y;
 
-        if (in_air_) {
-            // Bounce with coefficient of restitution
-            const float restitution = 0.5f;
-            velocity_.y *= -restitution;
+    //    if (in_air_) {
+    //        // Bounce with coefficient of restitution
+    //        const float restitution = 0.5f;
+    //        velocity_.y *= -restitution;
 
-            // Stop bouncing if too small
-            if (fabs(velocity_.y) < 0.1f) {
-                velocity_.y = 0.0f;
-                in_air_ = false;
-            }
-        }
-    }
+    //        // Stop bouncing if too small
+    //        if (fabs(velocity_.y) < 0.1f) {
+    //            velocity_.y = 0.0f;
+    //            in_air_ = false;
+    //        }
+    //    }
+    //}
 
     SetPosition(new_pos);
 
-    // Friction in horizontal plane
-    float damping = 0.98f;
-    velocity_.x *= damping;
-    velocity_.z *= damping;
+    //// Friction in horizontal plane
+    //float damping = 0.98f;
+    //velocity_.x *= damping;
+    //velocity_.z *= damping;
 
-    // Stop tiny motions
-    if (glm::length(glm::vec3(velocity_.x, 0, velocity_.z)) < 0.01f)
-        velocity_.x = velocity_.z = 0.0f;
+    //// Stop tiny motions
+    //if (glm::length(glm::vec3(velocity_.x, 0, velocity_.z)) < 0.01f)
+    //    velocity_.x = velocity_.z = 0.0f;
 }
 
 // Add horizontal or vertical velocity

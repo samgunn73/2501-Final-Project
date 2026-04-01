@@ -17,6 +17,7 @@ GameObject::GameObject(const glm::vec3 &position, Geometry *geom, Shader *shader
     shader_ = shader;
     texture_ = texture;
     ghost_ = false;
+    tiling_factor_ = glm::vec2(1.0);
 }
 GameObject::~GameObject() {}
 
@@ -71,7 +72,7 @@ void GameObject::Render(glm::mat4 view_matrix, double current_time) {
     // Set up the shader
     shader_->Enable();
 
-    shader_->SetUniform2f("tile_factor", glm::vec2(20.0f, 20.0f));
+    shader_->SetUniform2f("tile_factor", tiling_factor_);
     shader_->SetUniform1i("ghost", ghost_);
 
     // Set up the view matrix

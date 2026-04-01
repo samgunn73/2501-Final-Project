@@ -19,6 +19,7 @@
 #include "projectile_game_object.h"
 #include "particles.h"
 #include "particle_system.h"
+#include "platform_game_object.h"
 
 namespace game {
 
@@ -37,15 +38,10 @@ const std::string resources_directory_g = RESOURCES_DIRECTORY;
 // Declare all the textures here
 std::vector<std::string> textures;
 enum TextureID {
-    tex_sunfish = 0,
-    tex_powered = 1,
-    tex_shrimp = 2,
-    tex_collectible = 3,
-    tex_explosion = 4,
-    tex_bullet = 5,
-    tex_orb = 6,
-    tex_blade = 7,
-    tex_landscape = 8 
+    tex_crab = 0,
+    tex_background1 = 1,
+    tex_background2 = 2,
+    tex_platform = 3
 };
 
 void Game::SetupGameWorld(void)
@@ -56,15 +52,10 @@ void Game::SetupGameWorld(void)
     // **** Load all the textures that we will need
     //
     // Add the textures in the same order as the enum above 
-    textures.push_back("/textures/chopper.png");
-    textures.push_back("/textures/powered.png");
-    textures.push_back("/textures/shrimp.png");
-    textures.push_back("/textures/collectible.png");
-    textures.push_back("/textures/explosion.png");
-    textures.push_back("/textures/bullet.png");
-    textures.push_back("/textures/orb.png");
-    textures.push_back("/textures/blade.png");
-    textures.push_back("/textures/tileable_sky.jpg");
+    textures.push_back("/textures/crab1.png");
+    textures.push_back("/textures/parallax4.png");
+    textures.push_back("/textures/parallax3.png");
+    textures.push_back("/textures/platform.png");
     // Load all the textures
     LoadTextures(textures);
 
@@ -75,56 +66,69 @@ void Game::SetupGameWorld(void)
     // Note that, in this specific implementation, the player object should always be the first object in the game object vector 
     //
     // Create the player object
-    PlayerGameObject *player = new PlayerGameObject(glm::vec3(-2.5f, -2.0f, 0.0f), sprite_, &sprite_shader_, tex_[tex_sunfish]);
+    PlayerGameObject *player = new PlayerGameObject(glm::vec3(-2.5f, -2.0f, 0.0f), sprite_, &sprite_shader_, tex_[tex_crab]);
     // Add the player to the list of all game objects in the game
     game_objects_.push_back(player);
     // Make the object larger
-    player->SetScale(glm::vec2(2.0f, 2.0f));
-    normal_player_tex_ = tex_[tex_sunfish];
-    invincible_player_tex_ = tex_[tex_powered];
+    player->SetScale(glm::vec2(1.0f, 1.0f));
+
+    PlatformGameObject *platform = new PlatformGameObject(glm::vec3(-2.5f, -3.0f, 0.0f), sprite_, &bg_shader_, tex_[tex_platform]);
+    
+    game_objects_.push_back(platform);
+    platform->SetPosition(glm::vec3(.0f, -5.0f, 0.0f));
+    platform->SetScale(glm::vec2(10.0f, 1.0f));
+    platform->SetTilingFactor(glm::vec2(10.0f, 1.0f));
+
+    std::cout << game_objects_.size() << std::endl;
+    
 
     // Setup other objects
     // Shorter code than the setup of the player object
-    EnemyGameObject *enemy = new EnemyGameObject(glm::vec3(2.0f, 1.0f, 0.0f), sprite_, &sprite_shader_, tex_[tex_shrimp]);
-    enemy->SetEllipse(enemy->GetPosition(), 1.0f, 0.5f);
-    enemy->SetTarget(player);
-    game_objects_.push_back(enemy);
+    //EnemyGameObject *enemy = new EnemyGameObject(glm::vec3(2.0f, 1.0f, 0.0f), sprite_, &sprite_shader_, tex_[tex_shrimp]);
+    //enemy->SetEllipse(enemy->GetPosition(), 1.0f, 0.5f);
+    //enemy->SetTarget(player);
+    //game_objects_.push_back(enemy);
 
-    EnemyGameObject* enemy2 = new EnemyGameObject(glm::vec3(3.0f, -0.5f, 0.0f), sprite_, &sprite_shader_, tex_[tex_shrimp]);
-    enemy2->SetEllipse(enemy2->GetPosition(), 1.0f, 0.5f);
-    enemy2->SetTarget(player);
-    game_objects_.push_back(enemy2);
+    //EnemyGameObject* enemy2 = new EnemyGameObject(glm::vec3(3.0f, -0.5f, 0.0f), sprite_, &sprite_shader_, tex_[tex_shrimp]);
+    //enemy2->SetEllipse(enemy2->GetPosition(), 1.0f, 0.5f);
+    //enemy2->SetTarget(player);
+    //game_objects_.push_back(enemy2);
 
-    // Big shrimp using different scaling
-    EnemyGameObject* enemy3 = new EnemyGameObject(glm::vec3(4.0f, 3.5f, 0.0f), sprite_, &sprite_shader_, tex_[tex_shrimp]);
-    enemy3->SetScale(glm::vec2(3.5f, 2.0f)); // here!
-    enemy3->SetEllipse(enemy3->GetPosition(), 1.0f, 0.5f);
-    enemy3->SetTarget(player);
-    game_objects_.push_back(enemy3);
+    //// Big shrimp using different scaling
+    //EnemyGameObject* enemy3 = new EnemyGameObject(glm::vec3(4.0f, 3.5f, 0.0f), sprite_, &sprite_shader_, tex_[tex_shrimp]);
+    //enemy3->SetScale(glm::vec2(3.5f, 2.0f)); // here!
+    //enemy3->SetEllipse(enemy3->GetPosition(), 1.0f, 0.5f);
+    //enemy3->SetTarget(player);
+    //game_objects_.push_back(enemy3);
 
-    // Collectibles
-    game_objects_.push_back(new CollectibleGameObject(glm::vec3(-4.0f, -3.0f, 0.0f), sprite_, &sprite_shader_, tex_[tex_collectible]));
-    game_objects_.push_back(new CollectibleGameObject(glm::vec3(3.0f, -1.5f, 0.0f), sprite_, &sprite_shader_, tex_[tex_collectible]));
-    game_objects_.push_back(new CollectibleGameObject(glm::vec3(0.0f, -2.5f, 0.0f), sprite_, &sprite_shader_, tex_[tex_collectible]));
-    game_objects_.push_back(new CollectibleGameObject(glm::vec3(-3.0f, -2.0f, 0.0f), sprite_, &sprite_shader_, tex_[tex_collectible]));
-    game_objects_.push_back(new CollectibleGameObject(glm::vec3(4.0f, -3.0f, 0.0f), sprite_, &sprite_shader_, tex_[tex_collectible]));
+    //// Collectibles
+    //game_objects_.push_back(new CollectibleGameObject(glm::vec3(-4.0f, -3.0f, 0.0f), sprite_, &sprite_shader_, tex_[tex_collectible]));
+    //game_objects_.push_back(new CollectibleGameObject(glm::vec3(3.0f, -1.5f, 0.0f), sprite_, &sprite_shader_, tex_[tex_collectible]));
+    //game_objects_.push_back(new CollectibleGameObject(glm::vec3(0.0f, -2.5f, 0.0f), sprite_, &sprite_shader_, tex_[tex_collectible]));
+    //game_objects_.push_back(new CollectibleGameObject(glm::vec3(-3.0f, -2.0f, 0.0f), sprite_, &sprite_shader_, tex_[tex_collectible]));
+    //game_objects_.push_back(new CollectibleGameObject(glm::vec3(4.0f, -3.0f, 0.0f), sprite_, &sprite_shader_, tex_[tex_collectible]));
 
-    // Setup blade
-    blade_ = new GameObject(glm::vec3(0.0f, 0.0f, 0.0f), sprite_, &sprite_shader_, tex_[tex_blade]);
-    blade_->SetScale(glm::vec2(1.0f, 1.0f));
-    game_objects_.push_back(blade_);
+    //// Setup blade
+    //blade_ = new GameObject(glm::vec3(0.0f, 0.0f, 0.0f), sprite_, &sprite_shader_, tex_[tex_blade]);
+    //blade_->SetScale(glm::vec2(1.0f, 1.0f));
+    //game_objects_.push_back(blade_);
 
     // Setup particle systems
-    GameObject* particles = new ParticleSystem(glm::vec3(0.0f, -0.38f, 0.0f), particles_, &particle_shader_, tex_[tex_orb], game_objects_[0]);
-    particles->SetScale(glm::vec2(0.2f, 0.2f));
-    game_objects_.push_back(particles);
+   
 
     // Setup background
     // In this specific implementation, the background is always the
     // last object
-    GameObject *background = new GameObject(glm::vec3(0.0f, 0.0f, 0.0f), sprite_, &bg_shader_, tex_[tex_landscape]);
-    background->SetScale(glm::vec2(50.0));
-    game_objects_.push_back(background);
+    GameObject *background = new GameObject(glm::vec3(0.0f, 0.0f, 0.0f), sprite_, &bg_shader_, tex_[tex_background1]);
+    background->SetScale(glm::vec2(100,12));
+
+
+    GameObject* background2 = new GameObject(glm::vec3(0.0f, 0.0f, 0.0f), sprite_, &bg_shader_, tex_[tex_background2]);
+    background2->SetScale(glm::vec2(100,12));
+    background2->SetTilingFactor(glm::vec2(12, 1));
+    background_objects_.push_back(background2);
+    background_objects_.push_back(background);
+
 }
 
 
@@ -224,9 +228,9 @@ void Game::FireProjectile(PlayerGameObject* player) {
     glm::vec3 spawn_pos = player->GetPosition() + forward * spawn_offset;
 
     float projectile_speed = 10.0f;
-    ProjectileGameObject* proj = new ProjectileGameObject(spawn_pos, sprite_, &sprite_shader_, tex_[tex_bullet]);
-    proj->SetVelocity(forward * projectile_speed);
-    game_objects_.insert(game_objects_.end() - 1, proj);
+    //ProjectileGameObject* proj = new ProjectileGameObject(spawn_pos, sprite_, &sprite_shader_, tex_[tex_bullet]);
+    //proj->SetVelocity(forward * projectile_speed);
+    //game_objects_.insert(game_objects_.end() - 1, proj);
 }
 
 // Function for collision checking
@@ -282,6 +286,41 @@ bool RayCircleCollision(
     return false;
 }
 
+void player_platform_collision(PlayerGameObject* player, PlatformGameObject* platform) {
+    bool player_airborne = player->isAirborne();
+    //If airborne and colliding with platform with negative y velocity, make player land on platform
+    //If it has positive y velocity, it should move through the platform
+    if (player_airborne && player->GetVelocity().y < 0) {
+        if (player->GetPosition().y - (player->GetScale().y/2) < platform->GetPosition().y + (platform->GetScale().y/2)) {
+            if ((player->GetPosition().x - (player->GetScale().x / 2) < platform->GetPosition().x + platform->GetScale().x / 2) && (player->GetPosition().x + (player->GetScale().x / 2) > platform->GetPosition().x - platform->GetScale().x / 2)) {
+
+
+                player->SetAirborne(false);
+                player->SetVelocity(glm::vec3(player->GetVelocity().x, 0.0, 0.0));
+                platform->PlayerOnTop();
+                return;
+            }
+        }
+    }
+    //If player is ontop of a platform, and becomes airborne, make it leave the platform
+    // Example:: player jumps when they are ontop of a platform
+    if (player_airborne && platform->IsPlayerOnTop()) {
+        platform->NotPlayerOnTop();
+        return;
+    }
+    //If player is nolonger ontop of platform horizontally, make them airborne and off the platform
+    if (!player_airborne && platform->IsPlayerOnTop()) {
+        if (!(player->GetPosition().x - (player->GetScale().x / 2) < platform->GetPosition().x + platform->GetScale().x / 2) || !(player->GetPosition().x + (player->GetScale().x / 2) > platform->GetPosition().x - platform->GetScale().x / 2)) {
+
+
+            player->SetAirborne(true);
+            platform->NotPlayerOnTop();
+            return;
+        }
+    }
+   
+}
+
 void Game::Update(double delta_time)
 {
 
@@ -305,32 +344,26 @@ void Game::Update(double delta_time)
         float player_angle = player->GetRotation();
         double current_time = glfwGetTime();
 
-        // Offset behind helicopter
-        glm::vec3 offset(-0.8f, 0.0f, 0.0f);
+        
 
-        // Rotate offset with player
-        glm::vec3 rotated_offset(
-            cos(player_angle) * offset.x - sin(player_angle) * offset.y,
-            sin(player_angle) * offset.x + cos(player_angle) * offset.y,
-            0.0f
-        );
-
-        // Final blade position
-        blade_->SetPosition(player_pos + rotated_offset);
-
-        // Blade spins independently
-        blade_->SetRotation(current_time * 15.0f);
+       
 
         // Check for collision with other game objects
         //
-        // Note the loop bounds: we avoid testing the last object since
-        // it's the background covering the whole game world
+        
 
-        for (int j = i + 1; j < (game_objects_.size()-1); j++) {
+        for (int j = i + 1; j < (game_objects_.size()); j++) {
             GameObject* other_game_object = game_objects_[j];
-            if (!CheckCollision(player, other_game_object)) {
-                continue;
+
+
+            //Player and Platform
+
+            PlatformGameObject* platform =
+                dynamic_cast<PlatformGameObject*>(other_game_object);
+            if (platform) {
+                player_platform_collision(dynamic_cast<PlayerGameObject*>(player), platform);
             }
+            
 
             //Collectible collision check
             CollectibleGameObject* collectible =
@@ -363,15 +396,9 @@ void Game::Update(double delta_time)
                 continue;
             }
 
-            // Skip enemy explosions
-            if (std::find(enemy_explosions_.begin(),
-                enemy_explosions_.end(),
-                other_game_object) != enemy_explosions_.end()) {continue;}
+            
 
-            // Skip player explosion
-            if (other_game_object == player_explosion_) {continue;}
-
-            if (other_game_object == blade_) { continue; }
+         
 
             // Perform collision detection here
             // between current_game_object and other_game_object
@@ -380,21 +407,21 @@ void Game::Update(double delta_time)
                 glm::vec3 enemy_pos = other_game_object->GetPosition();
 
                 // Create enemy explosion
-                GameObject* explosion =
-                    new GameObject(enemy_pos, sprite_, &sprite_shader_, tex_[tex_explosion]);
-                explosion->SetScale(glm::vec2(1.5f));
-                // Insert before background
-                game_objects_.insert(game_objects_.end() - 1, explosion);
+                //GameObject* explosion =
+                //    new GameObject(enemy_pos, sprite_, &sprite_shader_, tex_[tex_explosion]);
+                //explosion->SetScale(glm::vec2(1.5f));
+                //// Insert before background
+                //game_objects_.insert(game_objects_.end() - 1, explosion);
 
-                // Store explosion and timer
-                enemy_explosions_.push_back(explosion);
+                //// Store explosion and timer
+                //enemy_explosions_.push_back(explosion);
                 Timer t;
                 t.Start(5.0);
                 enemy_explosion_timers_.push_back(t);
 
                 // Remove enemy
-                delete other_game_object;
-                game_objects_.erase(game_objects_.begin() + j);
+                //delete other_game_object;
+                //game_objects_.erase(game_objects_.begin() + j);
 
                 // Register player damage
                 if (!invincible_) {
@@ -472,15 +499,15 @@ void Game::Update(double delta_time)
     // Player explodes after 3 hits
     if (player_damage_ >= 3 && !player_explosion_active_) {
         // Create player explosion
-        GameObject* player = game_objects_[0];
-        player_explosion_ = new GameObject(player->GetPosition(), sprite_, &sprite_shader_, tex_[tex_explosion]);
-        player_explosion_->SetScale(glm::vec2(2.0f, 2.0f));
-        game_objects_.insert(game_objects_.end() - 1, player_explosion_);
+        //GameObject* player = game_objects_[0];
+        //player_explosion_ = new GameObject(player->GetPosition(), sprite_, &sprite_shader_, tex_[tex_explosion]);
+        //player_explosion_->SetScale(glm::vec2(2.0f, 2.0f));
+        //game_objects_.insert(game_objects_.end() - 1, player_explosion_);
 
         // Hide player and start timer
-        player->SetScale(glm::vec2(0.0f));
-        player_explosion_timer_.Start(5.0);
-        player_explosion_active_ = true;
+        //player->SetScale(glm::vec2(0.0f));
+        //player_explosion_timer_.Start(5.0);
+        //player_explosion_active_ = true;
 
     }
 
@@ -515,12 +542,12 @@ void Game::Update(double delta_time)
 
         } while (dist < MIN_SPAWN_DISTANCE && attempts < 50);
 
-        EnemyGameObject* new_enemy = new EnemyGameObject(spawn_pos, sprite_, &sprite_shader_, tex_[tex_shrimp]);
-        new_enemy->SetEllipse(new_enemy->GetPosition(), 1.0f, 0.5f);
-        new_enemy->SetTarget(player);
+        //EnemyGameObject* new_enemy = new EnemyGameObject(spawn_pos, sprite_, &sprite_shader_, tex_[tex_shrimp]);
+        //new_enemy->SetEllipse(new_enemy->GetPosition(), 1.0f, 0.5f);
+        //new_enemy->SetTarget(player);
 
-        // Insert before background
-        game_objects_.insert(game_objects_.end() - 1, new_enemy);
+        //// Insert before background
+        //game_objects_.insert(game_objects_.end() - 1, new_enemy);
 
         // Restart timer
         enemy_spawn_timer_.Start(10.0);
@@ -580,6 +607,9 @@ void Game::Render(void){
     // Render all game objects
     for (int i = 0; i < game_objects_.size(); i++) {
         game_objects_[i]->Render(view_matrix, current_time_);
+    }
+    for (int i = 0; i < background_objects_.size(); i++) {
+        background_objects_[i]->Render(view_matrix, current_time_);
     }
 }
 

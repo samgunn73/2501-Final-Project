@@ -11,6 +11,7 @@
 #include "game_object.h"
 #include "player_game_object.h"
 
+
 namespace game {
 
     // A class for holding the main game objects
@@ -57,8 +58,17 @@ namespace game {
             // This needs to be a pointer
             GLuint *tex_;
 
-            // List of game objects
+            // List of game objects that have collision
             std::vector<GameObject*> game_objects_;
+
+            // List of game objects for the hud
+            std::vector<GameObject*> hud_objects_;
+
+            // List of game objects that are the background
+            std::vector<GameObject*> background_objects_;
+
+            // List of game objects that are particle systems
+            std::vector<GameObject*> particle_objects_;
 
             // Keep track of game time
             double current_time_;
