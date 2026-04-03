@@ -20,8 +20,13 @@ namespace game {
             void SetAirborne(bool ab) { in_air_ = ab; }
             glm::vec3 GetVelocity() { return velocity_; }
             void SetVelocity(glm::vec3 velocity) { velocity_ = velocity; }
+            bool CanShoot() { return ammo > 0; }
+            void AddAmmo(int addition) { ammo = ammo + addition; }
+            void FireAmmo() { if (ammo > 0) { ammo = ammo - 1; }; }
+            int GetAmmo() { return ammo; }
             const float gravity = 9.8f;
             const float restitution = 0.5f;
+            
 
         private:
             glm::vec3 velocity_;
@@ -30,6 +35,7 @@ namespace game {
 
             float ground_y_ = -2.0f;
             float stop_threshold_ = 0.3f;
+            int ammo = 0;
     };
 
 }

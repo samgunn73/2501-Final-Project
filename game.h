@@ -10,6 +10,7 @@
 #include "shader.h"
 #include "game_object.h"
 #include "player_game_object.h"
+#include "hud_game_object.h"
 
 
 namespace game {
@@ -54,6 +55,10 @@ namespace game {
             // Shader for rendering particles
             Shader particle_shader_;
 
+
+            //Shader for rendering numbers
+            Shader number_shader_;
+
             // References to textures
             // This needs to be a pointer
             GLuint *tex_;
@@ -62,7 +67,7 @@ namespace game {
             std::vector<GameObject*> game_objects_;
 
             // List of game objects for the hud
-            std::vector<GameObject*> hud_objects_;
+            std::vector<HUDGameObject*> hud_objects_;
 
             // List of game objects that are the background
             std::vector<GameObject*> background_objects_;

@@ -13,6 +13,7 @@ set(HDRS
     collectible_game_object.h
     enemy_game_object.h
     projectile_game_object.h
+    hud_game_object.h
     shader.h
     geometry.h
     sprite.h
@@ -37,11 +38,13 @@ set(SRCS
     particles.cpp
     particle_system.cpp
     platform_game_object.cpp
+    hud_game_object.cpp
     sprite_vertex_shader.glsl
     sprite_fragment_shader.glsl
     bg_fragment_shader.glsl
     particle_vertex_shader.glsl
     particle_fragment_shader.glsl
+    number_fragment_shader.glsl
 )
 
 # Add path name to configuration file

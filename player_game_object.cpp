@@ -8,7 +8,9 @@ namespace game {
 */
 
 PlayerGameObject::PlayerGameObject(const glm::vec3 &position, Geometry *geom, Shader *shader, GLuint texture)
-	: GameObject(position, geom, shader, texture), velocity_(0.0f, 0.0f, 0.0f), in_air_(true) {}
+	: GameObject(position, geom, shader, texture), velocity_(0.0f, 0.0f, 0.0f), in_air_(true) {
+    ammo = 0;
+}
 
 // Update function for moving the player object around
 void PlayerGameObject::Update(double delta_time) {

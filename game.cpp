@@ -20,6 +20,7 @@
 #include "particles.h"
 #include "particle_system.h"
 #include "platform_game_object.h"
+#include "hud_game_object.h"
 
 namespace game {
 
@@ -41,7 +42,9 @@ enum TextureID {
     tex_crab = 0,
     tex_background1 = 1,
     tex_background2 = 2,
-    tex_platform = 3
+    tex_platform = 3,
+    tex_number = 4,
+    tex_bubble = 5
 };
 
 void Game::SetupGameWorld(void)
@@ -56,6 +59,8 @@ void Game::SetupGameWorld(void)
     textures.push_back("/textures/parallax4.png");
     textures.push_back("/textures/parallax3.png");
     textures.push_back("/textures/platform.png");
+    textures.push_back("/textures/numbers2.png");
+    textures.push_back("/textures/bubble.png");
     // Load all the textures
     LoadTextures(textures);
 
@@ -71,15 +76,35 @@ void Game::SetupGameWorld(void)
     game_objects_.push_back(player);
     // Make the object larger
     player->SetScale(glm::vec2(1.0f, 1.0f));
+    player->SetPosition(glm::vec3( - 2.5f, -2.0f, 0.0f));
+    player->AddAmmo(20);
 
     PlatformGameObject *platform = new PlatformGameObject(glm::vec3(-2.5f, -3.0f, 0.0f), sprite_, &bg_shader_, tex_[tex_platform]);
     
     game_objects_.push_back(platform);
-    platform->SetPosition(glm::vec3(.0f, -5.0f, 0.0f));
+    platform->SetPosition(glm::vec3(0.0f, -5.0f, 0.0f));
     platform->SetScale(glm::vec2(10.0f, 1.0f));
     platform->SetTilingFactor(glm::vec2(10.0f, 1.0f));
+    PlatformGameObject* platform2 = new PlatformGameObject(glm::vec3(0.0f, 2.0f, 0.0f), sprite_, &bg_shader_, tex_[tex_platform]);
+
+    game_objects_.push_back(platform2);
+    platform2->SetPosition(glm::vec3(4.0f, -3.7f, 0.0f));
+    platform2->SetScale(glm::vec2(10.0f, 1.0f));
+    platform2->SetTilingFactor(glm::vec2(10.0f, 1.0f));
 
     std::cout << game_objects_.size() << std::endl;
+
+    HUDGameObject* bubble_number_zeros = new HUDGameObject(glm::vec3(4.5f, 3.5f, 0.0f), sprite_, &number_shader_, tex_[tex_number]);
+    bubble_number_zeros->SetScale(glm::vec2(0.4, 0.4));
+    bubble_number_zeros->SetNumber(3);
+    hud_objects_.push_back(bubble_number_zeros);
+    HUDGameObject* bubble_number_tens = new HUDGameObject(glm::vec3(4.2f, 3.5f, 0.0f), sprite_, &number_shader_, tex_[tex_number]);
+    bubble_number_tens->SetScale(glm::vec2(0.4, 0.4));
+    bubble_number_tens->SetNumber(3);
+    hud_objects_.push_back(bubble_number_tens);
+    HUDGameObject* bubbleindicator = new HUDGameObject(glm::vec3(3.9f, 3.5f, 0.0f), sprite_, &sprite_shader_, tex_[tex_bubble]);
+    bubbleindicator->SetScale(glm::vec2(0.4, 0.4));
+    hud_objects_.push_back(bubbleindicator);
     
 
     // Setup other objects
@@ -177,6 +202,7 @@ void Game::HandleControls(double delta_time)
     if (glfwGetKey(window_, GLFW_KEY_D) == GLFW_PRESS) {
         player->AddVelocity(glm::vec3(2.0f, 0.0f, 0.0f));
     }
+    
 
     if (glfwGetKey(window_, GLFW_KEY_A) == GLFW_PRESS) {
         player->AddVelocity(glm::vec3(-2.0f, 0.0f, 0.0f));
@@ -215,6 +241,7 @@ void Game::HandleControls(double delta_time)
     // Fire projectile
     if (glfwGetKey(window_, GLFW_KEY_F) == GLFW_PRESS) {
         if (shoot_cooldown_timer_.Finished()) {
+            
             FireProjectile(player);
             // Restart cooldown (0.5 seconds)
             shoot_cooldown_timer_.Start(0.5);
@@ -223,14 +250,19 @@ void Game::HandleControls(double delta_time)
 }
 void Game::FireProjectile(PlayerGameObject* player) {
 
-    glm::vec3 forward = player->GetBearing(); // or use your GetBearing()
-    float spawn_offset = player->GetScale().x;  // or a small number like 0.5
-    glm::vec3 spawn_pos = player->GetPosition() + forward * spawn_offset;
+    if (player->CanShoot()) {
 
-    float projectile_speed = 10.0f;
-    //ProjectileGameObject* proj = new ProjectileGameObject(spawn_pos, sprite_, &sprite_shader_, tex_[tex_bullet]);
-    //proj->SetVelocity(forward * projectile_speed);
-    //game_objects_.insert(game_objects_.end() - 1, proj);
+        glm::vec3 forward = player->GetBearing(); // or use your GetBearing()
+        float spawn_offset = player->GetScale().x;  // or a small number like 0.5
+        glm::vec3 spawn_pos = player->GetPosition() + forward * spawn_offset;
+
+        float projectile_speed = 5.0f;
+        ProjectileGameObject* proj = new ProjectileGameObject(spawn_pos, sprite_, &sprite_shader_, tex_[tex_bubble]);
+        proj->SetVelocity(forward * projectile_speed);
+        proj->SetScale(glm::vec2(0.4, 0.4));
+        game_objects_.insert(game_objects_.end(), proj);
+        player->FireAmmo();
+    }
 }
 
 // Function for collision checking
@@ -291,13 +323,18 @@ void player_platform_collision(PlayerGameObject* player, PlatformGameObject* pla
     //If airborne and colliding with platform with negative y velocity, make player land on platform
     //If it has positive y velocity, it should move through the platform
     if (player_airborne && player->GetVelocity().y < 0) {
-        if (player->GetPosition().y - (player->GetScale().y/2) < platform->GetPosition().y + (platform->GetScale().y/2)) {
+        //Bottom of player model needs to be close to the top of platform
+        if (player->GetPosition().y - (player->GetScale().y/2) < platform->GetPosition().y + (platform->GetScale().y/2) + 0.05 && player->GetPosition().y - (player->GetScale().y / 2) > platform->GetPosition().y + (platform->GetScale().y / 2) - 0.05) {
             if ((player->GetPosition().x - (player->GetScale().x / 2) < platform->GetPosition().x + platform->GetScale().x / 2) && (player->GetPosition().x + (player->GetScale().x / 2) > platform->GetPosition().x - platform->GetScale().x / 2)) {
 
 
                 player->SetAirborne(false);
+                //Remove veritcal velocity
                 player->SetVelocity(glm::vec3(player->GetVelocity().x, 0.0, 0.0));
+                //Make the PLayer ontop of the platform
                 platform->PlayerOnTop();
+                //Snap Position to ontop of platform
+                player->SetPosition(glm::vec3(player->GetPosition().x, platform->GetPosition().y + platform->GetScale().y / 2 + player->GetScale().y / 2, 0.0f));
                 return;
             }
         }
@@ -482,6 +519,7 @@ void Game::Update(double delta_time)
                 break;
             }
         }
+        
     }
 
     for (int i = game_objects_.size() - 1; i >= 0; i--) {
@@ -569,6 +607,16 @@ void Game::Update(double delta_time)
     }
 
     // Update current game time
+    //Update all hud objects
+    glm::vec3 player_pos = game_objects_[0]->GetPosition();
+    for (int i = hud_objects_.size()-1; i >= 0; i--) {
+        hud_objects_[i]->Update(delta_time, player_pos);
+        
+    }
+    //Update Bubble counters
+    PlayerGameObject* player = dynamic_cast<PlayerGameObject*>(game_objects_[0]);
+    hud_objects_[0]->SetNumber(player->GetAmmo() % 10);
+    hud_objects_[1]->SetNumber(player->GetAmmo() / 10);
     current_time_ += delta_time;
 }
 
@@ -605,12 +653,16 @@ void Game::Render(void){
     glm::mat4 view_matrix = window_scale_matrix * camera_zoom_matrix * camera_translation;
 
     // Render all game objects
+    for (int i = 0; i < hud_objects_.size(); i++) {
+       hud_objects_[i]->Render(view_matrix, current_time_);
+    }
     for (int i = 0; i < game_objects_.size(); i++) {
         game_objects_[i]->Render(view_matrix, current_time_);
     }
     for (int i = 0; i < background_objects_.size(); i++) {
         background_objects_[i]->Render(view_matrix, current_time_);
     }
+    
 }
 
 
@@ -729,6 +781,10 @@ void Game::Init(void)
 
     // Initialize particle shader
     particle_shader_.Init((resources_directory_g + std::string("/particle_vertex_shader.glsl")).c_str(), (resources_directory_g + std::string("/particle_fragment_shader.glsl")).c_str());
+
+    //Initalize number shader
+
+    number_shader_.Init((resources_directory_g + std::string("/sprite_vertex_shader.glsl")).c_str(), (resources_directory_g + std::string("/number_fragment_shader.glsl")).c_str());
 
     // Initialize time
     current_time_ = 0.0;
