@@ -11,6 +11,7 @@ in vec2 uv; // Texture coordinates
 uniform mat4 transformation_matrix;
 uniform mat4 view_matrix;
 uniform float time; // Timer
+uniform float start_time; //Time that the thing has started
 
 // Attributes forwarded to the fragment shader
 out vec4 color_interp;
@@ -19,13 +20,13 @@ out vec2 uv_interp;
 void main()
 {
     vec4 pos; // Vertex position
-    float cycle = 2.0; // Duration of cycle in seconds
+    float cycle = 1.0; // Duration of cycle in seconds
     float speed = 4.0; // Speed adjustment constant
     float gravity = 2.8; // Gravity in this world
     float acttime; // Cyclic time
 
     // Add phase to the time and cycle it
-    acttime = mod(time + t*cycle, cycle);
+    acttime = time - start_time;
 
     // Move particle along given direction
     pos = vec4(vertex.x + acttime*speed*dir.x , vertex.y + acttime*speed*dir.y , 0.0, 1.0);

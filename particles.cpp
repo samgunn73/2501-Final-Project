@@ -21,8 +21,8 @@ float rand_num(void)
     return ((float) rand()) / ((float) RAND_MAX);
 }
 
-
-void Particles::CreateGeometry(int num_particles)
+//Particle starting conditions can change based on which type it is
+void Particles::CreateGeometry(int num_particles,ParticleType type)
 {
 
     // Each particle is a square with four vertices and two triangles
@@ -51,8 +51,9 @@ void Particles::CreateGeometry(int num_particles)
     GLfloat *particles = new GLfloat[num_particles * vertex_attr];
     float theta, r, tmod;
     float pi = glm::pi<float>();
-    float two_pi = 2.0f*pi;
-
+    float two_pi = 2.0f * pi;
+    
+    
     for (int i = 0; i < num_particles; i++){
         // Check if we are initializing a new particle
         //
@@ -63,11 +64,22 @@ void Particles::CreateGeometry(int num_particles)
             // Se above for definition of rand_num()
             //
             // Opening of the stream of particles
-            theta = two_pi*rand_num();
-            // Radius (length) of the stream
-            r = 1.5f + 2.0f*rand_num();
-            // Time phase
-            tmod = rand_num();
+            
+            if (type == EXPLOSION) {
+
+                theta = two_pi * rand_num();
+                // Radius (length) of the stream
+                r = 2.0f * rand_num();
+                // Time phase
+                tmod = 10.0f;
+            }
+            if (type == SAND) {
+                theta = two_pi/2 * rand_num() - two_pi / 4;
+                // Radius (length) of the stream
+                r = 1.0f * rand_num();
+                // Time phase
+                tmod = 1.0f;
+            }
         }
 
         // Copy position from standard sprite

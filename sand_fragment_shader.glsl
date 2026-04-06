@@ -4,25 +4,20 @@
 // Attributes passed from the vertex shader
 in vec4 color_interp;
 in vec2 uv_interp;
+in float t; // Phase
 
 // Texture sampler
 uniform sampler2D onetex;
-
-// new
-uniform int number;
+uniform float time; // Timer
 
 void main()
 {
-    float up = float(number)/10 + uv_interp.x/10;
-    vec2 new_uv = vec2(up, uv_interp.y);   
     // Sample texture
-    vec4 color = texture2D(onetex, new_uv);
+    vec4 color = texture2D(onetex, uv_interp);
+    color.rgb = vec3(0.79, 0.73, 0.57) * color_interp.r;
 
-    
-   
     // Assign color to fragment
     gl_FragColor = vec4(color.r, color.g, color.b, color.a);
-    
 
     // Check for transparency
     if(color.a < 0.4)

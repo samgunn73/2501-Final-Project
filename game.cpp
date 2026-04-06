@@ -4,6 +4,7 @@
 #include <glm/gtc/matrix_transform.hpp> 
 #include <SOIL/SOIL.h>
 #include <iostream>
+#include <ctime>
 
 #include <path_config.h>
 
@@ -44,7 +45,11 @@ enum TextureID {
     tex_background2 = 2,
     tex_platform = 3,
     tex_number = 4,
-    tex_bubble = 5
+    tex_bubble = 5,
+    tex_hook = 6,
+    tex_heart = 7,
+    tex_collectible = 8,
+    tex_orb = 9
 };
 
 void Game::SetupGameWorld(void)
@@ -61,6 +66,10 @@ void Game::SetupGameWorld(void)
     textures.push_back("/textures/platform.png");
     textures.push_back("/textures/numbers2.png");
     textures.push_back("/textures/bubble.png");
+    textures.push_back("/textures/hook.png");
+    textures.push_back("/textures/heart.png");
+    textures.push_back("/textures/collectible.png");
+    textures.push_back("/textures/orb.png");
     // Load all the textures
     LoadTextures(textures);
 
@@ -71,20 +80,26 @@ void Game::SetupGameWorld(void)
     // Note that, in this specific implementation, the player object should always be the first object in the game object vector 
     //
     // Create the player object
-    PlayerGameObject *player = new PlayerGameObject(glm::vec3(-2.5f, -2.0f, 0.0f), sprite_, &sprite_shader_, tex_[tex_crab]);
+    PlayerGameObject* player = new PlayerGameObject(glm::vec3(-2.5f, -0.0f, 0.0f), sprite_, &sprite_shader_, tex_[tex_crab]);
     // Add the player to the list of all game objects in the game
     game_objects_.push_back(player);
     // Make the object larger
     player->SetScale(glm::vec2(1.0f, 1.0f));
-    player->SetPosition(glm::vec3( - 2.5f, -2.0f, 0.0f));
     player->AddAmmo(20);
 
-    PlatformGameObject *platform = new PlatformGameObject(glm::vec3(-2.5f, -3.0f, 0.0f), sprite_, &bg_shader_, tex_[tex_platform]);
+    //Create The claw object
+
+    WeaponGameObject* player_claw = new WeaponGameObject(glm::vec3(0.5f, 0.0f, 0.0f), sprite_, &sprite_shader_, GL_TEXTURE1, player);
+    game_objects_.push_back(player_claw);
+
+    //Putting camera centered around player at start
+    camera_position_ = player->GetPosition();
+
+    PlatformGameObject *platform = new PlatformGameObject(glm::vec3(50.0f, -3.5f, 0.0f), sprite_, &bg_shader_, tex_[tex_platform]);
     
     game_objects_.push_back(platform);
-    platform->SetPosition(glm::vec3(0.0f, -5.0f, 0.0f));
-    platform->SetScale(glm::vec2(10.0f, 1.0f));
-    platform->SetTilingFactor(glm::vec2(10.0f, 1.0f));
+    platform->SetScale(glm::vec2(150.0f, 1.0f));
+    platform->SetTilingFactor(glm::vec2(150.0f, 1.0f));
     PlatformGameObject* platform2 = new PlatformGameObject(glm::vec3(0.0f, 2.0f, 0.0f), sprite_, &bg_shader_, tex_[tex_platform]);
 
     game_objects_.push_back(platform2);
@@ -92,23 +107,42 @@ void Game::SetupGameWorld(void)
     platform2->SetScale(glm::vec2(10.0f, 1.0f));
     platform2->SetTilingFactor(glm::vec2(10.0f, 1.0f));
 
-    std::cout << game_objects_.size() << std::endl;
+    //Creating all HudObjects, these display information such as ammo, hearts, amount to goal and time
+    //These should always stay in the same order, because number objects need to be updated based on the order they are put into the array
 
     HUDGameObject* bubble_number_zeros = new HUDGameObject(glm::vec3(4.5f, 3.5f, 0.0f), sprite_, &number_shader_, tex_[tex_number]);
     bubble_number_zeros->SetScale(glm::vec2(0.4, 0.4));
-    bubble_number_zeros->SetNumber(3);
     hud_objects_.push_back(bubble_number_zeros);
     HUDGameObject* bubble_number_tens = new HUDGameObject(glm::vec3(4.2f, 3.5f, 0.0f), sprite_, &number_shader_, tex_[tex_number]);
     bubble_number_tens->SetScale(glm::vec2(0.4, 0.4));
-    bubble_number_tens->SetNumber(3);
     hud_objects_.push_back(bubble_number_tens);
     HUDGameObject* bubbleindicator = new HUDGameObject(glm::vec3(3.9f, 3.5f, 0.0f), sprite_, &sprite_shader_, tex_[tex_bubble]);
     bubbleindicator->SetScale(glm::vec2(0.4, 0.4));
     hud_objects_.push_back(bubbleindicator);
+    HUDGameObject* heart_number_zeros = new HUDGameObject(glm::vec3(4.5f, 3.0f, 0.0f), sprite_, &number_shader_, tex_[tex_number]);
+    heart_number_zeros->SetScale(glm::vec2(0.4, 0.4));
+    hud_objects_.push_back(heart_number_zeros);
+    HUDGameObject* heartindicator = new HUDGameObject(glm::vec3(4.2f, 3.0f, 0.0f), sprite_, &sprite_shader_, tex_[tex_heart]);
+    heartindicator->SetScale(glm::vec2(0.4, 0.4));
+    hud_objects_.push_back(heartindicator);
+    HUDGameObject* timer_number_zeros = new HUDGameObject(glm::vec3(-3.9f, 3.5f, 0.0f), sprite_, &number_shader_, tex_[tex_number]);
+    timer_number_zeros->SetScale(glm::vec2(0.4, 0.4));
+    hud_objects_.push_back(timer_number_zeros);
+    HUDGameObject* timer_number_tens = new HUDGameObject(glm::vec3(-4.2f, 3.5f, 0.0f), sprite_, &number_shader_, tex_[tex_number]);
+    timer_number_tens->SetScale(glm::vec2(0.4, 0.4));
+    hud_objects_.push_back(timer_number_tens);
+    HUDGameObject* timer_number_hundreds = new HUDGameObject(glm::vec3(-4.5f, 3.5f, 0.0f), sprite_, &number_shader_, tex_[tex_number]);
+    timer_number_hundreds->SetScale(glm::vec2(0.4, 0.4));
+    hud_objects_.push_back(timer_number_hundreds);
+   
     
 
     // Setup other objects
     // Shorter code than the setup of the player object
+    EnemyGameObject* enemy = new EnemyGameObject(glm::vec3(2.0f, 1.0f, 0.0f), sprite_, &sprite_shader_, tex_[tex_hook],player,HOOK);
+    game_objects_.push_back(enemy);
+    enemy = new EnemyGameObject(glm::vec3(0.0f, 1.0f, 0.0f),sprite_,&sprite_shader_,tex_[tex_hook], player, NET);
+    game_objects_.push_back(enemy);
     //EnemyGameObject *enemy = new EnemyGameObject(glm::vec3(2.0f, 1.0f, 0.0f), sprite_, &sprite_shader_, tex_[tex_shrimp]);
     //enemy->SetEllipse(enemy->GetPosition(), 1.0f, 0.5f);
     //enemy->SetTarget(player);
@@ -127,9 +161,10 @@ void Game::SetupGameWorld(void)
     //game_objects_.push_back(enemy3);
 
     //// Collectibles
-    //game_objects_.push_back(new CollectibleGameObject(glm::vec3(-4.0f, -3.0f, 0.0f), sprite_, &sprite_shader_, tex_[tex_collectible]));
-    //game_objects_.push_back(new CollectibleGameObject(glm::vec3(3.0f, -1.5f, 0.0f), sprite_, &sprite_shader_, tex_[tex_collectible]));
-    //game_objects_.push_back(new CollectibleGameObject(glm::vec3(0.0f, -2.5f, 0.0f), sprite_, &sprite_shader_, tex_[tex_collectible]));
+    game_objects_.push_back(new CollectibleGameObject(glm::vec3(-0.0f, -3.0f, 0.0f), sprite_, &sprite_shader_, tex_[tex_collectible],INVINCIBILITY));
+    game_objects_.push_back(new CollectibleGameObject(glm::vec3(3.0f, -1.5f, 0.0f), sprite_, &sprite_shader_, tex_[tex_heart],HEART));
+
+    game_objects_.push_back(new CollectibleGameObject(glm::vec3(0.0f, -2.5f, 0.0f), sprite_, &sprite_shader_, tex_[tex_bubble],AMMO));
     //game_objects_.push_back(new CollectibleGameObject(glm::vec3(-3.0f, -2.0f, 0.0f), sprite_, &sprite_shader_, tex_[tex_collectible]));
     //game_objects_.push_back(new CollectibleGameObject(glm::vec3(4.0f, -3.0f, 0.0f), sprite_, &sprite_shader_, tex_[tex_collectible]));
 
@@ -145,12 +180,12 @@ void Game::SetupGameWorld(void)
     // In this specific implementation, the background is always the
     // last object
     GameObject *background = new GameObject(glm::vec3(0.0f, 0.0f, 0.0f), sprite_, &bg_shader_, tex_[tex_background1]);
-    background->SetScale(glm::vec2(100,12));
+    background->SetScale(glm::vec2(220,24));
 
 
     GameObject* background2 = new GameObject(glm::vec3(0.0f, 0.0f, 0.0f), sprite_, &bg_shader_, tex_[tex_background2]);
-    background2->SetScale(glm::vec2(100,12));
-    background2->SetTilingFactor(glm::vec2(12, 1));
+    background2->SetScale(glm::vec2(220,12));
+    background2->SetTilingFactor(glm::vec2(24, 1));
     background_objects_.push_back(background2);
     background_objects_.push_back(background);
 
@@ -192,45 +227,44 @@ void Game::HandleControls(double delta_time)
 
     // Check for player input and make changes accordingly
     if (glfwGetKey(window_, GLFW_KEY_W) == GLFW_PRESS) {
-        player->Jump(5.0f);
+        player->Jump(8.0f);
     }
 
     if (glfwGetKey(window_, GLFW_KEY_S) == GLFW_PRESS) {
-        player->AddVelocity(acceleration * player->GetRight());
+        //player->AddVelocity(acceleration * player->GetRight());
     }
 
     if (glfwGetKey(window_, GLFW_KEY_D) == GLFW_PRESS) {
         player->AddVelocity(glm::vec3(2.0f, 0.0f, 0.0f));
     }
-    
+   
 
     if (glfwGetKey(window_, GLFW_KEY_A) == GLFW_PRESS) {
         player->AddVelocity(glm::vec3(-2.0f, 0.0f, 0.0f));
     }
-
-    if (glfwGetKey(window_, GLFW_KEY_Q) == GLFW_PRESS) {
-        player->SetRotation(angle + angle_increment);
-    }
-    if (glfwGetKey(window_, GLFW_KEY_E) == GLFW_PRESS) {
-        player->SetRotation(angle - angle_increment);
+    if (glfwGetKey(window_, GLFW_KEY_A) != GLFW_PRESS && glfwGetKey(window_, GLFW_KEY_D) != GLFW_PRESS) {
+        
+        player->AddVelocity(glm::vec3(-player->GetVelocity().x, 0.0f, 0.0f));
     }
     if (glfwGetKey(window_, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window_, true);
     }
     if (glfwGetKey(window_, GLFW_KEY_SPACE) == GLFW_PRESS) {
-        std::cout << "Hooray!" << std::endl;
+        WeaponGameObject* claw = dynamic_cast<WeaponGameObject*>(game_objects_[1]);
+        glm::vec2 mouse_pos_2d;
+        if (GetMousePosition(mouse_pos_2d)) {
+            if (mouse_pos_2d.x + camera_position_.x - player->GetPosition().x > 0) {
+                claw->Attack(1);
+             }
+            else {
+                claw->Attack(-1);
+            }
+        }
+        
     }
 
     // Aim at mouse
-    glm::vec2 mouse_pos_2d;
-    if (GetMousePosition(mouse_pos_2d)) {
-        glm::vec3 player_pos = player->GetPosition();
-        glm::vec3 look_dir(mouse_pos_2d.x - player_pos.x, 0.0f, mouse_pos_2d.y - player_pos.z);
-        if (glm::length(look_dir) > 0.0001f) {
-            float angle = atan2(look_dir.z, look_dir.x); // horizontal plane
-            player->SetRotation(angle);
-        }
-    }
+   
 
     // Start shoot timer once
     if (!shoot_timer_started_) {
@@ -251,19 +285,23 @@ void Game::HandleControls(double delta_time)
 void Game::FireProjectile(PlayerGameObject* player) {
 
     if (player->CanShoot()) {
+        glm::vec2 mousepos;
+        if (GetMousePosition(mousepos)) {
+            glm::vec3 forward = glm::normalize(glm::vec3(mousepos.x + camera_position_.x - player->GetPosition().x, mousepos.y + camera_position_.y - player->GetPosition().y, 0.0f));
+            float spawn_offset = player->GetScale().x;
+            glm::vec3 spawn_pos = player->GetPosition() + forward * spawn_offset;
 
-        glm::vec3 forward = player->GetBearing(); // or use your GetBearing()
-        float spawn_offset = player->GetScale().x;  // or a small number like 0.5
-        glm::vec3 spawn_pos = player->GetPosition() + forward * spawn_offset;
-
-        float projectile_speed = 5.0f;
-        ProjectileGameObject* proj = new ProjectileGameObject(spawn_pos, sprite_, &sprite_shader_, tex_[tex_bubble]);
-        proj->SetVelocity(forward * projectile_speed);
-        proj->SetScale(glm::vec2(0.4, 0.4));
-        game_objects_.insert(game_objects_.end(), proj);
-        player->FireAmmo();
+            float projectile_speed = 5.0f;
+            ProjectileGameObject* proj = new ProjectileGameObject(spawn_pos, sprite_, &sprite_shader_, tex_[tex_bubble]);
+            proj->SetVelocity(forward * projectile_speed + player->GetVelocity());
+            proj->SetScale(glm::vec2(0.4, 0.4));
+            game_objects_.insert(game_objects_.end(), proj);
+            player->FireAmmo();
+        }
     }
 }
+
+
 
 // Function for collision checking
 bool CheckCollision(GameObject* a, GameObject* b) {
@@ -318,10 +356,11 @@ bool RayCircleCollision(
     return false;
 }
 
-void player_platform_collision(PlayerGameObject* player, PlatformGameObject* platform) {
+void Game::player_platform_collision(PlayerGameObject* player, PlatformGameObject* platform) {
     bool player_airborne = player->isAirborne();
     //If airborne and colliding with platform with negative y velocity, make player land on platform
     //If it has positive y velocity, it should move through the platform
+    //Generate a particle system, that mimics sand being sent out
     if (player_airborne && player->GetVelocity().y < 0) {
         //Bottom of player model needs to be close to the top of platform
         if (player->GetPosition().y - (player->GetScale().y/2) < platform->GetPosition().y + (platform->GetScale().y/2) + 0.05 && player->GetPosition().y - (player->GetScale().y / 2) > platform->GetPosition().y + (platform->GetScale().y / 2) - 0.05) {
@@ -335,6 +374,12 @@ void player_platform_collision(PlayerGameObject* player, PlatformGameObject* pla
                 platform->PlayerOnTop();
                 //Snap Position to ontop of platform
                 player->SetPosition(glm::vec3(player->GetPosition().x, platform->GetPosition().y + platform->GetScale().y / 2 + player->GetScale().y / 2, 0.0f));
+
+                //place particle system source at top of platform, and middle of player
+                ParticleSystem* enemy_explosion = new ParticleSystem(glm::vec3(player->GetPosition().x,platform->GetPosition().y + platform->GetScale().y / 2,0.0f), sand_, &sand_shader_, tex_[tex_orb], nullptr);
+                enemy_explosion->StartTimer(1);
+                enemy_explosion->SetScale(glm::vec2(0.1, 0.1));
+                particle_objects_.push_back(enemy_explosion);
                 return;
             }
         }
@@ -360,7 +405,7 @@ void player_platform_collision(PlayerGameObject* player, PlatformGameObject* pla
 
 void Game::Update(double delta_time)
 {
-
+    
     // Start enemy spawn timer once
     if (!enemy_spawn_timer_started_) {
         enemy_spawn_timer_.Start(10.0);
@@ -375,12 +420,43 @@ void Game::Update(double delta_time)
         // Update the current game object
         current_game_object->Update(delta_time);
 
-        GameObject* player = game_objects_[0];
+        PlayerGameObject* player = dynamic_cast<PlayerGameObject*>(game_objects_[0]);
 
         glm::vec3 player_pos = player->GetPosition();
         float player_angle = player->GetRotation();
         double current_time = glfwGetTime();
 
+        //Will start with only collision between player and other objects, since these only require cycling through game objects once, not twice
+
+        //Player and Platform Collision
+
+        PlatformGameObject* platform =
+            dynamic_cast<PlatformGameObject*>(current_game_object);
+        if (platform) {
+            player_platform_collision(dynamic_cast<PlayerGameObject*>(player), platform);
+        }
+
+        //Enemy with claw weapon
+        WeaponGameObject* claw = dynamic_cast<WeaponGameObject*>(game_objects_[1]);
+        EnemyGameObject* enemy = dynamic_cast<EnemyGameObject*>(current_game_object);
+        if (enemy) {
+            if (CheckCollision(claw, enemy)) {
+                if (claw->IsActive()) {
+                    glm::vec3 enemy_pos = enemy->GetPosition();
+
+                    
+                    ParticleSystem* enemy_explosion = new ParticleSystem(enemy_pos, particles_, &particle_shader_, tex_[tex_bubble], nullptr);
+                    enemy_explosion->StartTimer(2);
+                    enemy_explosion->SetScale(glm::vec2(0.1, 0.1));
+                    particle_objects_.push_back(enemy_explosion);
+
+
+                    // Remove enemy
+                    delete enemy;
+                    game_objects_.erase(game_objects_.begin() + i);
+                }
+            }
+        }
         
 
        
@@ -393,13 +469,7 @@ void Game::Update(double delta_time)
             GameObject* other_game_object = game_objects_[j];
 
 
-            //Player and Platform
-
-            PlatformGameObject* platform =
-                dynamic_cast<PlatformGameObject*>(other_game_object);
-            if (platform) {
-                player_platform_collision(dynamic_cast<PlayerGameObject*>(player), platform);
-            }
+            
             
 
             //Collectible collision check
@@ -408,27 +478,34 @@ void Game::Update(double delta_time)
 
             if (collectible) {
 
-                if (CheckCollision(current_game_object, collectible)) {
+                if (CheckCollision(player, collectible)) {
 
                     // Prevent recollection
                     if (collectible->IsCollected()) continue;
                     // turn to ghost
                     collectible->Collect();
                     collectible->SetGhost(true);
+                    if (collectible->GetType() == INVINCIBILITY) {
+                        // Increase item count
+                        collected_items_++;
 
-                    // Increase item count
-                    collected_items_++;
 
+                        // Activate invincibility
+                        if (collected_items_ >= 1 && !invincible_) {
+                            invincible_ = true;
+                            collected_items_ = 0;
 
-                    // Activate invincibility
-                    if (collected_items_ >= 5 && !invincible_) {
-                        invincible_ = true;
-                        collected_items_ = 0;
-
-                        invincible_timer_.Start(10.0);
-                        game_objects_[0]->SetTexture(invincible_player_tex_);
+                            invincible_timer_.Start(10.0);
+                            game_objects_[0]->SetTexture(invincible_player_tex_);
+                        }
+                        break;
                     }
-                    break;
+                    if (collectible->GetType() == AMMO) {
+                        player->AddAmmo(10);
+                    }
+                    if (collectible->GetType() == HEART) {
+                        player_lives_++;
+                    }
                 }
                 continue;
             }
@@ -439,30 +516,35 @@ void Game::Update(double delta_time)
 
             // Perform collision detection here
             // between current_game_object and other_game_object
-            if (CheckCollision(current_game_object, other_game_object)) {
+            //Player colliding with enemy
+            if (CheckCollision(player, other_game_object)) {
                 // Get enemy position
-                glm::vec3 enemy_pos = other_game_object->GetPosition();
+                if (dynamic_cast<EnemyGameObject*>(other_game_object) != nullptr) {
+                    glm::vec3 enemy_pos = other_game_object->GetPosition();
 
-                // Create enemy explosion
-                //GameObject* explosion =
-                //    new GameObject(enemy_pos, sprite_, &sprite_shader_, tex_[tex_explosion]);
-                //explosion->SetScale(glm::vec2(1.5f));
-                //// Insert before background
-                //game_objects_.insert(game_objects_.end() - 1, explosion);
+                    // Create enemy explosion
+                    //GameObject* explosion =
+                    //    new GameObject(enemy_pos, sprite_, &sprite_shader_, tex_[tex_explosion]);
+                    //explosion->SetScale(glm::vec2(1.5f));
+                    //// Insert before background
+                    //game_objects_.insert(game_objects_.end() - 1, explosion);
 
-                //// Store explosion and timer
-                //enemy_explosions_.push_back(explosion);
-                Timer t;
-                t.Start(5.0);
-                enemy_explosion_timers_.push_back(t);
+                    //// Store explosion and timer
+                    //enemy_explosions_.push_back(explosion);
+                    ParticleSystem* enemy_explosion = new ParticleSystem(enemy_pos, particles_, &particle_shader_, tex_[tex_bubble], nullptr);
+                    enemy_explosion->StartTimer(2);
+                    enemy_explosion->SetScale(glm::vec2(0.1, 0.1));
+                    particle_objects_.push_back(enemy_explosion);
+                    
+                    
+                    // Remove enemy
+                    delete other_game_object;
+                    game_objects_.erase(game_objects_.begin() + j);
 
-                // Remove enemy
-                //delete other_game_object;
-                //game_objects_.erase(game_objects_.begin() + j);
-
-                // Register player damage
-                if (!invincible_) {
-                    player_damage_++;
+                    // Register player damage
+                    if (!invincible_) {
+                        player_lives_--;
+                    }
                 }
 
                 break;
@@ -470,23 +552,14 @@ void Game::Update(double delta_time)
 
         }
     }
-    for (int i = enemy_explosions_.size() - 1; i >= 0; i--) {
 
-        if (enemy_explosion_timers_[i].Finished()) {
 
-            // Remove explosion object
-            auto it = std::find(game_objects_.begin(),
-                game_objects_.end(),
-                enemy_explosions_[i]);
-
-            if (it != game_objects_.end()) {
-                delete enemy_explosions_[i];
-                game_objects_.erase(it);
-            }
-
-            // Remove timer and pointer
-            enemy_explosions_.erase(enemy_explosions_.begin() + i);
-            enemy_explosion_timers_.erase(enemy_explosion_timers_.begin() + i);
+    for (int i = particle_objects_.size() - 1; i >= 0; i--) {
+        
+        if (particle_objects_[i]->ToDestroy()) {
+            ParticleSystem* to_delete = particle_objects_[i];
+            particle_objects_.erase(particle_objects_.begin() + i);
+            delete to_delete;
         }
     }
     // projectile-enemy collisions
@@ -516,6 +589,11 @@ void Game::Update(double delta_time)
                 enemy->destroy_ = true;
                 proj->destroy_ = true;
 
+                ParticleSystem* enemy_explosion = new ParticleSystem(enemy->GetPosition(), particles_, &particle_shader_, tex_[tex_bubble], nullptr);
+                enemy_explosion->StartTimer(2);
+                enemy_explosion->SetScale(glm::vec2(0.1, 0.1));
+                particle_objects_.push_back(enemy_explosion);
+
                 break;
             }
         }
@@ -535,7 +613,7 @@ void Game::Update(double delta_time)
     }
 
     // Player explodes after 3 hits
-    if (player_damage_ >= 3 && !player_explosion_active_) {
+    if (player_lives_ <= 0 && !player_explosion_active_) {
         // Create player explosion
         //GameObject* player = game_objects_[0];
         //player_explosion_ = new GameObject(player->GetPosition(), sprite_, &sprite_shader_, tex_[tex_explosion]);
@@ -596,7 +674,7 @@ void Game::Update(double delta_time)
         invincible_ = false;
 
         // Restore player texture
-        game_objects_[0]->SetTexture(normal_player_tex_);
+        game_objects_[0]->SetTexture(tex_[tex_crab]);
     }
 
     for (int i = game_objects_.size() - 1; i >= 0; i--) {
@@ -605,19 +683,50 @@ void Game::Update(double delta_time)
             game_objects_.erase(game_objects_.begin() + i);
         }
     }
+    PlayerGameObject* player = dynamic_cast<PlayerGameObject*>(game_objects_[0]);
+    //Update Camera Position before hud is rendered
+    //Have a cap on the size of the level, this is done by capping how far left/right the camera can move
+    //Players velocity is set to 0 if they collide with the edge of the screen to the left
+    
+    if (player->GetPosition().x < 0.0f) {
+        camera_position_ = glm::vec3(0.0f, camera_position_.y, 0.0f);
+    }
+    else if(player->GetPosition().x > 100.f){
+        camera_position_ = glm::vec3(100.0f, camera_position_.y, 0.0f);
+    }
+    else {
+        camera_position_ = glm::vec3(player->GetPosition().x, camera_position_.y, 0.0f);
+    }
+    if (player->GetPosition().x -player->GetScale().x/2 < -6) {
+        player->SetVelocity(glm::vec3(0.0f, 0.0f, 0.0f));
+        player->SetPosition(glm::vec3(-6.0 + player->GetScale().x / 2, player->GetPosition().y, 0.0f));
+        
+    }
+    if (player->GetPosition().x - player->GetScale().x / 2 > 100) {
+        player->SetVelocity(glm::vec3(0.0f, 0.0f, 0.0f));
+        player->SetPosition(glm::vec3(100 - player->GetScale().x / 2, player->GetPosition().y, 0.0f));
+
+    }
+    
 
     // Update current game time
     //Update all hud objects
-    glm::vec3 player_pos = game_objects_[0]->GetPosition();
+    
     for (int i = hud_objects_.size()-1; i >= 0; i--) {
-        hud_objects_[i]->Update(delta_time, player_pos);
+        hud_objects_[i]->Update(delta_time, camera_position_);
         
     }
-    //Update Bubble counters
-    PlayerGameObject* player = dynamic_cast<PlayerGameObject*>(game_objects_[0]);
+    //Update Numbers counters
+    
     hud_objects_[0]->SetNumber(player->GetAmmo() % 10);
     hud_objects_[1]->SetNumber(player->GetAmmo() / 10);
+    hud_objects_[3]->SetNumber(player_lives_);
     current_time_ += delta_time;
+    hud_objects_[5]->SetNumber(static_cast<int>(std::floor(current_time_)) % 10);
+    hud_objects_[6]->SetNumber(static_cast<int>(std::floor(current_time_)) % 100 / 10);
+    hud_objects_[7]->SetNumber(current_time_ / 100);
+
+    
 }
 
 
@@ -647,7 +756,7 @@ void Game::Render(void){
     GameObject* player = game_objects_[0];
     glm::vec3 player_pos = player->GetPosition();
 
-    glm::mat4 camera_translation = glm::translate(glm::mat4(1.0f), glm::vec3(-player_pos.x, -player_pos.y, 0.0f));
+    glm::mat4 camera_translation = glm::translate(glm::mat4(1.0f), glm::vec3(-camera_position_.x, -camera_position_.y, 0.0f));
 
     // Continuous scrolling
     glm::mat4 view_matrix = window_scale_matrix * camera_zoom_matrix * camera_translation;
@@ -657,11 +766,21 @@ void Game::Render(void){
        hud_objects_[i]->Render(view_matrix, current_time_);
     }
     for (int i = 0; i < game_objects_.size(); i++) {
+        //Do not render claw
+        if (i == 1) {
+            continue;
+        }
         game_objects_[i]->Render(view_matrix, current_time_);
     }
+    
+    
     for (int i = 0; i < background_objects_.size(); i++) {
         background_objects_[i]->Render(view_matrix, current_time_);
     }
+    for (int i = 0; i < particle_objects_.size(); i++) {
+        particle_objects_[i]->Render(view_matrix, current_time_);
+    }
+    
     
 }
 
@@ -770,8 +889,13 @@ void Game::Init(void)
 
     // Initialize particle geometry
     Particles* particles_temp = new Particles();
-    particles_temp->CreateGeometry(4000); // Use 4000 particles
+    particles_temp->CreateGeometry(400,EXPLOSION); // Use 4000 particles
     particles_ = particles_temp;
+
+    particles_temp = new Particles();
+    particles_temp->CreateGeometry(100, SAND);
+    sand_ = particles_temp;
+
 
     // Initialize sprite shader
     sprite_shader_.Init((resources_directory_g+std::string("/sprite_vertex_shader.glsl")).c_str(), (resources_directory_g+std::string("/sprite_fragment_shader.glsl")).c_str());
@@ -786,13 +910,15 @@ void Game::Init(void)
 
     number_shader_.Init((resources_directory_g + std::string("/sprite_vertex_shader.glsl")).c_str(), (resources_directory_g + std::string("/number_fragment_shader.glsl")).c_str());
 
+    sand_shader_.Init((resources_directory_g + std::string("/sand_vertex_shader.glsl")).c_str(), (resources_directory_g + std::string("/sand_fragment_shader.glsl")).c_str());
+
     // Initialize time
     current_time_ = 0.0;
 
     // Set zoom factor
     camera_zoom_ = 0.25f;
 
-    srand((unsigned int)time(nullptr));
+    
 }
 
 

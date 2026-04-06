@@ -3,6 +3,12 @@
 
 #include "geometry.h"
 
+const enum ParticleType {
+    EXPLOSION,
+    SAND
+};
+
+
 namespace game {
 
     // A set of particles that can be rendered
@@ -12,10 +18,13 @@ namespace game {
             Particles(void);
 
             // Create the geometry (called once)
-            void CreateGeometry(int num_particles);
+            void CreateGeometry(int num_particles,ParticleType type);
 
             // Use the geometry
             void SetGeometry(GLuint shader_program);
+
+
+       
 
     }; // class Particles
 } // namespace game

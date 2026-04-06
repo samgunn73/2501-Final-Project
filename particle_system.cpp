@@ -8,11 +8,12 @@ namespace game {
 
 ParticleSystem::ParticleSystem(const glm::vec3 &position, Geometry *geom, Shader *shader, GLuint texture, GameObject *parent)
 	: GameObject(position, geom, shader, texture), parent_(parent) {
+    start_time_ = -1;
 }
 
 
 void ParticleSystem::Update(double delta_time) {
-
+    
     // Call the parent's update method to move the object in standard way, if desired
     GameObject::Update(delta_time);
 }
@@ -22,6 +23,12 @@ void ParticleSystem::Render(glm::mat4 view_matrix, double current_time){
 
     // Set up the shader
     shader_->Enable();
+
+    if (start_time_ == -1) {
+        start_time_ = current_time;
+    }
+
+    shader_->SetUniform1f("start_time", start_time_);
 
     // Set up the view matrix
     shader_->SetUniformMat4("view_matrix", view_matrix);
@@ -35,13 +42,20 @@ void ParticleSystem::Render(glm::mat4 view_matrix, double current_time){
     // Set up the translation matrix for the shader
     glm::mat4 translation_matrix = glm::translate(glm::mat4(1.0f), position_);
 
-    // Set up the parent transformation matrix
-    glm::mat4 parent_rotation_matrix = glm::rotate(glm::mat4(1.0f), parent_->GetRotation(), glm::vec3(0.0, 0.0, 1.0));
-    glm::mat4 parent_translation_matrix = glm::translate(glm::mat4(1.0f), parent_->GetPosition());
-    glm::mat4 parent_transformation_matrix = parent_translation_matrix * parent_rotation_matrix;
+    glm::mat4 transformation_matrix;
+    if (parent_ == nullptr) {
+        transformation_matrix = translation_matrix * rotation_matrix * scaling_matrix;
+    }
+    else {
 
-    // Setup the transformation matrix for the shader
-    glm::mat4 transformation_matrix = parent_transformation_matrix * translation_matrix * rotation_matrix * scaling_matrix;
+        glm::mat4 parent_rotation_matrix = glm::rotate(glm::mat4(1.0f), parent_->GetRotation(), glm::vec3(0.0, 0.0, 1.0));
+        glm::mat4 parent_translation_matrix = glm::translate(glm::mat4(1.0f), parent_->GetPosition());
+        glm::mat4 parent_transformation_matrix = parent_translation_matrix * parent_rotation_matrix;
+
+        // Setup the transformation matrix for the shader
+        transformation_matrix = parent_transformation_matrix * translation_matrix * rotation_matrix * scaling_matrix;
+    }
+
 
     // Set the transformation matrix in the shader
     shader_->SetUniformMat4("transformation_matrix", transformation_matrix);

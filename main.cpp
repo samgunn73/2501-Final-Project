@@ -24,6 +24,8 @@
 
 // Main function that builds and runs the game
 int main(void){
+    //Initialize randomness
+    std::srand(std::time(nullptr));
     game::Game the_game;
 
     try {

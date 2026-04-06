@@ -3,9 +3,9 @@
 namespace game {
 
     CollectibleGameObject::CollectibleGameObject(const glm::vec3& position,
-        Geometry* geometry, Shader* shader, GLuint texture)
+        Geometry* geometry, Shader* shader, GLuint texture,CollectibleType type)
         : GameObject(position, geometry, shader, texture),
-        collected_(false) {
+        collected_(false),type_(type) {
     }
 
     bool CollectibleGameObject::IsCollected() const {

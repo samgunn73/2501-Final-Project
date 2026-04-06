@@ -11,7 +11,10 @@
 #include "game_object.h"
 #include "player_game_object.h"
 #include "hud_game_object.h"
-
+#include "particle_system.h"
+#include "platform_game_object.h"
+#include "weapon_game_object.h"
+#include "objective_game_object.h"
 
 namespace game {
 
@@ -46,6 +49,8 @@ namespace game {
             // Particle geometry
             Geometry* particles_;
 
+            Geometry* sand_;
+
             // Shader for rendering sprites in the scene
             Shader sprite_shader_;
 
@@ -54,6 +59,9 @@ namespace game {
 
             // Shader for rendering particles
             Shader particle_shader_;
+
+            //Shader for sand particles
+            Shader sand_shader_;
 
 
             //Shader for rendering numbers
@@ -73,7 +81,7 @@ namespace game {
             std::vector<GameObject*> background_objects_;
 
             // List of game objects that are particle systems
-            std::vector<GameObject*> particle_objects_;
+            std::vector<ParticleSystem*> particle_objects_;
 
             // Keep track of game time
             double current_time_;
@@ -81,10 +89,14 @@ namespace game {
             // Camera zoom factor
             float camera_zoom_;
 
+            //Camera Position
+            glm::vec3 camera_position_;
+
             // Handle user input
             void HandleControls(double delta_time);
 
             void FireProjectile(PlayerGameObject* player);
+            void AttackWithClaw(WeaponGameObject* claw);
 
             // Update all the game objects
             void Update(double delta_time);
@@ -105,13 +117,16 @@ namespace game {
 
             // Load all textures
             void LoadTextures(std::vector<std::string> &textures);
+            //For checking collision between player and platform
+            void player_platform_collision(PlayerGameObject* player, PlatformGameObject* platform);
 
+            
             // For explosions
             std::vector<GameObject*> enemy_explosions_;
             std::vector<Timer> enemy_explosion_timers_;
 
             // Player damage
-            int player_damage_ = 0;
+            int player_lives_ = 3;
 
             // Timer
             Timer player_explosion_timer_;
