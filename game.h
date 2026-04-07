@@ -16,6 +16,8 @@
 #include "weapon_game_object.h"
 #include "objective_game_object.h"
 
+const int REQUIRED_COLLECTIBLES = 3;
+
 namespace game {
 
     // A class for holding the main game objects
@@ -128,6 +130,8 @@ namespace game {
             // Player damage
             int player_lives_ = 3;
 
+            //Complete the game collectibles
+            int collectibles_ = 0;
             // Timer
             Timer player_explosion_timer_;
             Timer invincible_timer_;

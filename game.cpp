@@ -95,6 +95,10 @@ void Game::SetupGameWorld(void)
     //Putting camera centered around player at start
     camera_position_ = player->GetPosition();
 
+    //Create the ending
+    ObjectiveGameObject* finish = new ObjectiveGameObject(glm::vec3(95.0f, -2.50f, 0.0f), sprite_, &sprite_shader_, tex_[tex_crab]);
+    game_objects_.push_back(finish);
+
     PlatformGameObject *platform = new PlatformGameObject(glm::vec3(50.0f, -3.5f, 0.0f), sprite_, &bg_shader_, tex_[tex_platform]);
     
     game_objects_.push_back(platform);
@@ -134,7 +138,12 @@ void Game::SetupGameWorld(void)
     HUDGameObject* timer_number_hundreds = new HUDGameObject(glm::vec3(-4.5f, 3.5f, 0.0f), sprite_, &number_shader_, tex_[tex_number]);
     timer_number_hundreds->SetScale(glm::vec2(0.4, 0.4));
     hud_objects_.push_back(timer_number_hundreds);
-   
+    HUDGameObject* crab_number_zeros = new HUDGameObject(glm::vec3(4.5f, 2.5f, 0.0f), sprite_, &number_shader_, tex_[tex_number]);
+    crab_number_zeros->SetScale(glm::vec2(0.4, 0.4));
+    hud_objects_.push_back(crab_number_zeros);
+    HUDGameObject* crabindicator = new HUDGameObject(glm::vec3(4.2f, 2.5f, 0.0f), sprite_, &sprite_shader_, tex_[tex_crab]);
+    crabindicator->SetScale(glm::vec2(0.4, 0.4));
+    hud_objects_.push_back(crabindicator);
     
 
     // Setup other objects
@@ -427,6 +436,16 @@ void Game::Update(double delta_time)
         double current_time = glfwGetTime();
 
         //Will start with only collision between player and other objects, since these only require cycling through game objects once, not twice
+
+        //Player and Objective
+
+        ObjectiveGameObject* objective = dynamic_cast<ObjectiveGameObject*>(current_game_object);
+        if(objective != nullptr){
+            if (CheckCollision(player,objective) && collectibles_ >= REQUIRED_COLLECTIBLES) {
+                std::cout << "Congratulations" << std::endl;
+                glfwDestroyWindow(window_);
+            }
+        }
 
         //Player and Platform Collision
 
@@ -725,7 +744,7 @@ void Game::Update(double delta_time)
     hud_objects_[5]->SetNumber(static_cast<int>(std::floor(current_time_)) % 10);
     hud_objects_[6]->SetNumber(static_cast<int>(std::floor(current_time_)) % 100 / 10);
     hud_objects_[7]->SetNumber(current_time_ / 100);
-
+    hud_objects_[8]->SetNumber(collectibles_);
     
 }
 
@@ -914,7 +933,8 @@ void Game::Init(void)
 
     // Initialize time
     current_time_ = 0.0;
-
+    //Initalize collectibles;
+    collectibles_ = 3;
     // Set zoom factor
     camera_zoom_ = 0.25f;
 
