@@ -115,7 +115,7 @@ namespace game {
                 direction = glm::normalize(direction);
                 glm::vec3 target_velocity = direction * speed_;
                 accel_ = target_velocity - velocity_;
-                std::cout << direction.y << " " << target_velocity.y<< std::endl;
+                
                 
                 reaction_timer_.Start(2.0);
             }

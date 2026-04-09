@@ -214,9 +214,9 @@ void Game::SetupGameWorld(void)
     game_objects_.push_back(new CollectibleGameObject(glm::vec3(3.0f, 2.5f, 0.0f), sprite_, &sprite_shader_, tex_[tex_heart],HEART));
     game_objects_.push_back(new CollectibleGameObject(glm::vec3(15.0f, -1.5f, 0.0f), sprite_, &sprite_shader_, tex_[tex_heart], HEART));
     game_objects_.push_back(new CollectibleGameObject(glm::vec3(60.0f, 2.5f, 0.0f), sprite_, &sprite_shader_, tex_[tex_heart], HEART));
-    game_objects_.push_back(new CollectibleGameObject(glm::vec3(10.0f, 3.5f, 0.0f), sprite_, &sprite_shader_, tex_[tex_bubble],AMMO));
-    game_objects_.push_back(new CollectibleGameObject(glm::vec3(80.0f, 3.5f, 0.0f), sprite_, &sprite_shader_, tex_[tex_bubble], AMMO));
-    game_objects_.push_back(new CollectibleGameObject(glm::vec3(.0f, 3.5f, 0.0f), sprite_, &sprite_shader_, tex_[tex_bubble], AMMO));
+    game_objects_.push_back(new CollectibleGameObject(glm::vec3(10.0f, 2.5f, 0.0f), sprite_, &sprite_shader_, tex_[tex_bubble],AMMO));
+    game_objects_.push_back(new CollectibleGameObject(glm::vec3(80.0f, 2.5f, 0.0f), sprite_, &sprite_shader_, tex_[tex_bubble], AMMO));
+    game_objects_.push_back(new CollectibleGameObject(glm::vec3(.0f, 2.5f, 0.0f), sprite_, &sprite_shader_, tex_[tex_bubble], AMMO));
     CollectibleGameObject* collectible = new CollectibleGameObject(glm::vec3(10.0f, 3.5f, 0.0f), sprite_, &sprite_shader_, tex_[tex_crab], CRAB);
     collectible->SetScale(glm::vec2(0.5, 0.5));
     game_objects_.push_back(collectible);
