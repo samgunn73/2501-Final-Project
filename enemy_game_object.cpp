@@ -13,7 +13,7 @@ namespace game {
         ellipse_height_(0.5f),
         theta_(0.0f),
         target_(target),
-        speed_(0.5f),
+        speed_(1.0f),
         accel_(glm::vec3(0.0f,0.0f,0.0f))
     {
         reaction_timer_.Start(2.0);

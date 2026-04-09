@@ -6,7 +6,8 @@ enum EnemyState {
     PATROLLING,
     INTERCEPTING,
     HOOK,
-    NET
+    NET,
+    NUM_ENEMY_TYPES = 3
 };
 const float WANDER_RING_DISTANCE = 6.0;
 const float WANDER_RING_RADIUS = 0.5;
