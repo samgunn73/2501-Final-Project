@@ -16,7 +16,7 @@
 #include "weapon_game_object.h"
 #include "objective_game_object.h"
 
-const int REQUIRED_COLLECTIBLES = 3;
+const int REQUIRED_COLLECTIBLES = 4;
 
 namespace game {
 

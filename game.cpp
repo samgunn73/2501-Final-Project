@@ -49,7 +49,9 @@ enum TextureID {
     tex_hook = 6,
     tex_heart = 7,
     tex_collectible = 8,
-    tex_orb = 9
+    tex_orb = 9,
+    tex_harpoon = 10,
+    tex_net = 11
 };
 
 void Game::SetupGameWorld(void)
@@ -70,6 +72,8 @@ void Game::SetupGameWorld(void)
     textures.push_back("/textures/heart.png");
     textures.push_back("/textures/collectible.png");
     textures.push_back("/textures/orb.png");
+    textures.push_back("/textures/harpoon.png");
+    textures.push_back("/textures/net.png");
     // Load all the textures
     LoadTextures(textures);
 
@@ -89,27 +93,79 @@ void Game::SetupGameWorld(void)
 
     //Create The claw object
 
-    WeaponGameObject* player_claw = new WeaponGameObject(glm::vec3(0.5f, 0.0f, 0.0f), sprite_, &sprite_shader_, GL_TEXTURE1, player);
+    WeaponGameObject* player_claw = new WeaponGameObject(glm::vec3(0.5f, 0.0f, 0.0f), sprite_, &sprite_shader_, tex_[tex_orb], player);
     game_objects_.push_back(player_claw);
 
     //Putting camera centered around player at start
     camera_position_ = player->GetPosition();
 
     //Create the ending
-    ObjectiveGameObject* finish = new ObjectiveGameObject(glm::vec3(95.0f, -2.50f, 0.0f), sprite_, &sprite_shader_, tex_[tex_crab]);
+    ObjectiveGameObject* finish = new ObjectiveGameObject(glm::vec3(-4.0f, -3.0f, 0.0f), sprite_, &sprite_shader_, tex_[tex_crab]);
     game_objects_.push_back(finish);
 
-    PlatformGameObject *platform = new PlatformGameObject(glm::vec3(50.0f, -3.5f, 0.0f), sprite_, &bg_shader_, tex_[tex_platform]);
+    PlatformGameObject *platform = new PlatformGameObject(glm::vec3(50.0f, -4.0f, 0.0f), sprite_, &bg_shader_, tex_[tex_platform]);
     
     game_objects_.push_back(platform);
     platform->SetScale(glm::vec2(150.0f, 1.0f));
     platform->SetTilingFactor(glm::vec2(150.0f, 1.0f));
     PlatformGameObject* platform2 = new PlatformGameObject(glm::vec3(0.0f, 2.0f, 0.0f), sprite_, &bg_shader_, tex_[tex_platform]);
 
-    game_objects_.push_back(platform2);
-    platform2->SetPosition(glm::vec3(4.0f, -3.7f, 0.0f));
-    platform2->SetScale(glm::vec2(10.0f, 1.0f));
-    platform2->SetTilingFactor(glm::vec2(10.0f, 1.0f));
+
+    platform = new PlatformGameObject(glm::vec3(10.0f, 0.5f, 0.0f), sprite_, &bg_shader_, tex_[tex_platform]);
+    game_objects_.push_back(platform);
+    platform->SetScale(glm::vec2(10.0f, 1.0f));
+    platform->SetTilingFactor(glm::vec2(10.0f, 1.0f));
+
+    platform = new PlatformGameObject(glm::vec3(4.0f, -01.0f, 0.0f), sprite_, &bg_shader_, tex_[tex_platform]);
+    game_objects_.push_back(platform);
+    
+
+    platform = new PlatformGameObject(glm::vec3(22.0f, -1.0f, 0.0f), sprite_, &bg_shader_, tex_[tex_platform]);
+    game_objects_.push_back(platform);
+    platform->SetScale(glm::vec2(4.0f, 1.0f));
+    platform->SetTilingFactor(glm::vec2(4.0f, 1.0f));
+
+    platform = new PlatformGameObject(glm::vec3(27.0f, 1.5f, 0.0f), sprite_, &bg_shader_, tex_[tex_platform]);
+    game_objects_.push_back(platform);
+    platform->SetScale(glm::vec2(5.0f, 1.0f));
+    platform->SetTilingFactor(glm::vec2(5.0f, 1.0f));
+
+    platform = new PlatformGameObject(glm::vec3(30.0f, -1.5f, 0.0f), sprite_, &bg_shader_, tex_[tex_platform]);
+    game_objects_.push_back(platform);
+    platform->SetScale(glm::vec2(3.0f, 1.0f));
+    platform->SetTilingFactor(glm::vec2(3.0f, 1.0f));
+
+    platform = new PlatformGameObject(glm::vec3(35.0f, 0.5f, 0.0f), sprite_, &bg_shader_, tex_[tex_platform]);
+    game_objects_.push_back(platform);
+    platform->SetScale(glm::vec2(2.0f, 1.0f));
+    platform->SetTilingFactor(glm::vec2(2.0f, 1.0f));
+
+    platform = new PlatformGameObject(glm::vec3(40.0f, 2.5f, 0.0f), sprite_, &bg_shader_, tex_[tex_platform]);
+    game_objects_.push_back(platform);
+    platform->SetScale(glm::vec2(8.0f, 1.0f));
+    platform->SetTilingFactor(glm::vec2(8.0f, 1.0f));
+
+    platform = new PlatformGameObject(glm::vec3(50.0f, -1.8f, 0.0f), sprite_, &bg_shader_, tex_[tex_platform]);
+    game_objects_.push_back(platform);
+    platform->SetScale(glm::vec2(20.0f, 1.0f));
+    platform->SetTilingFactor(glm::vec2(20.0f, 1.0f));
+
+    platform = new PlatformGameObject(glm::vec3(62.0f, 1.5f, 0.0f), sprite_, &bg_shader_, tex_[tex_platform]);
+    game_objects_.push_back(platform);
+    platform->SetScale(glm::vec2(4.0f, 1.0f));
+    platform->SetTilingFactor(glm::vec2(4.0f, 1.0f));
+
+    platform = new PlatformGameObject(glm::vec3(58.0f, 3.0f, 0.0f), sprite_, &bg_shader_, tex_[tex_platform]);
+    game_objects_.push_back(platform);
+    platform->SetScale(glm::vec2(4.0f, 1.0f));
+    platform->SetTilingFactor(glm::vec2(4.0f, 1.0f));
+
+    platform = new PlatformGameObject(glm::vec3(70.0f, 0.0f, 0.0f), sprite_, &bg_shader_, tex_[tex_platform]);
+    game_objects_.push_back(platform);
+    platform->SetScale(glm::vec2(10.0f, 1.0f));
+    platform->SetTilingFactor(glm::vec2(10.0f, 1.0f));
+
+
 
     //Creating all HudObjects, these display information such as ammo, hearts, amount to goal and time
     //These should always stay in the same order, because number objects need to be updated based on the order they are put into the array
@@ -144,38 +200,36 @@ void Game::SetupGameWorld(void)
     HUDGameObject* crabindicator = new HUDGameObject(glm::vec3(4.2f, 2.5f, 0.0f), sprite_, &sprite_shader_, tex_[tex_crab]);
     crabindicator->SetScale(glm::vec2(0.4, 0.4));
     hud_objects_.push_back(crabindicator);
+
+
     
 
     // Setup other objects
     // Shorter code than the setup of the player object
     EnemyGameObject* enemy = new EnemyGameObject(glm::vec3(2.0f, 1.0f, 0.0f), sprite_, &sprite_shader_, tex_[tex_hook],player,HOOK);
     game_objects_.push_back(enemy);
-    enemy = new EnemyGameObject(glm::vec3(0.0f, 1.0f, 0.0f),sprite_,&sprite_shader_,tex_[tex_hook], player, NET);
-    game_objects_.push_back(enemy);
-    //EnemyGameObject *enemy = new EnemyGameObject(glm::vec3(2.0f, 1.0f, 0.0f), sprite_, &sprite_shader_, tex_[tex_shrimp]);
-    //enemy->SetEllipse(enemy->GetPosition(), 1.0f, 0.5f);
-    //enemy->SetTarget(player);
-    //game_objects_.push_back(enemy);
-
-    //EnemyGameObject* enemy2 = new EnemyGameObject(glm::vec3(3.0f, -0.5f, 0.0f), sprite_, &sprite_shader_, tex_[tex_shrimp]);
-    //enemy2->SetEllipse(enemy2->GetPosition(), 1.0f, 0.5f);
-    //enemy2->SetTarget(player);
-    //game_objects_.push_back(enemy2);
-
-    //// Big shrimp using different scaling
-    //EnemyGameObject* enemy3 = new EnemyGameObject(glm::vec3(4.0f, 3.5f, 0.0f), sprite_, &sprite_shader_, tex_[tex_shrimp]);
-    //enemy3->SetScale(glm::vec2(3.5f, 2.0f)); // here!
-    //enemy3->SetEllipse(enemy3->GetPosition(), 1.0f, 0.5f);
-    //enemy3->SetTarget(player);
-    //game_objects_.push_back(enemy3);
-
+ 
     //// Collectibles
-    game_objects_.push_back(new CollectibleGameObject(glm::vec3(-0.0f, -3.0f, 0.0f), sprite_, &sprite_shader_, tex_[tex_collectible],INVINCIBILITY));
-    game_objects_.push_back(new CollectibleGameObject(glm::vec3(3.0f, -1.5f, 0.0f), sprite_, &sprite_shader_, tex_[tex_heart],HEART));
+    game_objects_.push_back(new CollectibleGameObject(glm::vec3(50.0f, -2.5f, 0.0f), sprite_, &sprite_shader_, tex_[tex_collectible],INVINCIBILITY));
+    game_objects_.push_back(new CollectibleGameObject(glm::vec3(3.0f, 2.5f, 0.0f), sprite_, &sprite_shader_, tex_[tex_heart],HEART));
+    game_objects_.push_back(new CollectibleGameObject(glm::vec3(15.0f, -1.5f, 0.0f), sprite_, &sprite_shader_, tex_[tex_heart], HEART));
+    game_objects_.push_back(new CollectibleGameObject(glm::vec3(60.0f, 2.5f, 0.0f), sprite_, &sprite_shader_, tex_[tex_heart], HEART));
+    game_objects_.push_back(new CollectibleGameObject(glm::vec3(10.0f, 2.5f, 0.0f), sprite_, &sprite_shader_, tex_[tex_bubble],AMMO));
+    game_objects_.push_back(new CollectibleGameObject(glm::vec3(80.0f, 2.5f, 0.0f), sprite_, &sprite_shader_, tex_[tex_bubble], AMMO));
+    game_objects_.push_back(new CollectibleGameObject(glm::vec3(.0f, 2.5f, 0.0f), sprite_, &sprite_shader_, tex_[tex_bubble], AMMO));
+    CollectibleGameObject* collectible = new CollectibleGameObject(glm::vec3(10.0f, 3.5f, 0.0f), sprite_, &sprite_shader_, tex_[tex_crab], CRAB);
+    collectible->SetScale(glm::vec2(0.5, 0.5));
+    game_objects_.push_back(collectible);
+    collectible = new CollectibleGameObject(glm::vec3(48.0f, 3.5f, 0.0f), sprite_, &sprite_shader_, tex_[tex_crab], CRAB);
+    collectible->SetScale(glm::vec2(0.5, 0.5));
+    game_objects_.push_back(collectible);
+    collectible = new CollectibleGameObject(glm::vec3(55.0f, 3.5f, 0.0f), sprite_, &sprite_shader_, tex_[tex_crab], CRAB);
+    collectible->SetScale(glm::vec2(0.5, 0.5));
+    game_objects_.push_back(collectible);
+    collectible = new CollectibleGameObject(glm::vec3(95.0f, -3.0f, 0.0f), sprite_, &sprite_shader_, tex_[tex_crab], CRAB);
+    collectible->SetScale(glm::vec2(0.5, 0.5));
+    game_objects_.push_back(collectible);
 
-    game_objects_.push_back(new CollectibleGameObject(glm::vec3(0.0f, -2.5f, 0.0f), sprite_, &sprite_shader_, tex_[tex_bubble],AMMO));
-    //game_objects_.push_back(new CollectibleGameObject(glm::vec3(-3.0f, -2.0f, 0.0f), sprite_, &sprite_shader_, tex_[tex_collectible]));
-    //game_objects_.push_back(new CollectibleGameObject(glm::vec3(4.0f, -3.0f, 0.0f), sprite_, &sprite_shader_, tex_[tex_collectible]));
 
     //// Setup blade
     //blade_ = new GameObject(glm::vec3(0.0f, 0.0f, 0.0f), sprite_, &sprite_shader_, tex_[tex_blade]);
@@ -417,7 +471,7 @@ void Game::Update(double delta_time)
     
     // Start enemy spawn timer once
     if (!enemy_spawn_timer_started_) {
-        enemy_spawn_timer_.Start(10.0);
+        enemy_spawn_timer_.Start(4.0);
         enemy_spawn_timer_started_ = true;
     }
 
@@ -524,6 +578,9 @@ void Game::Update(double delta_time)
                     }
                     if (collectible->GetType() == HEART) {
                         player_lives_++;
+                    }
+                    if (collectible->GetType() == CRAB) {
+                        collectibles_++;
                     }
                 }
                 continue;
@@ -632,60 +689,81 @@ void Game::Update(double delta_time)
     }
 
     // Player explodes after 3 hits
-    if (player_lives_ <= 0 && !player_explosion_active_) {
-        // Create player explosion
-        //GameObject* player = game_objects_[0];
-        //player_explosion_ = new GameObject(player->GetPosition(), sprite_, &sprite_shader_, tex_[tex_explosion]);
-        //player_explosion_->SetScale(glm::vec2(2.0f, 2.0f));
-        //game_objects_.insert(game_objects_.end() - 1, player_explosion_);
-
-        // Hide player and start timer
-        //player->SetScale(glm::vec2(0.0f));
-        //player_explosion_timer_.Start(5.0);
-        //player_explosion_active_ = true;
-
+    if (player_lives_ <= 0 ) {
+        
+        std::cout << "GameOver" << std::endl;
+        glfwDestroyWindow(window_);
     }
 
-    // End game after player explosion finishes
-    if (player_explosion_active_ && player_explosion_timer_.Finished()) {
-        // Remove player from game objects
-        delete game_objects_[0];
-        game_objects_.erase(game_objects_.begin());
-
-        // Game over and close window
-        std::cout << "Game Over!" << std::endl;
-        glfwSetWindowShouldClose(window_, true);
-    }
-
-    const float MIN_SPAWN_DISTANCE = 2.5f;
+    
     // Spawn new enemy every 10 seconds
     if (enemy_spawn_timer_.Finished()) {
 
         GameObject* player = game_objects_[0];
         glm::vec3 spawn_pos;
+        float MIN_SPAWN_DISTANCE;
         float dist;
         int attempts = 0;
+        float random_enemy_type = ((float)rand() / RAND_MAX) * NUM_ENEMY_TYPES;
+        EnemyGameObject* new_enemy;
+        //HARPOON
+        if (random_enemy_type < 1) {
+            do {
+                // Random position within visible area
+                float x = ((float)rand() / RAND_MAX) * 6.0f - 3.0f;  // [-3, 3]
+                float y = ((float)rand() / RAND_MAX) * 4.0f - 2.0f;  // [-2, 2]
+                spawn_pos = glm::vec3(x, y, 0.0f) + camera_position_;
+                dist = glm::length(spawn_pos - player->GetPosition());
+                MIN_SPAWN_DISTANCE = 2.5 + player->GetScale().x / 2 + 0.5;
+                attempts++;
 
-        do {
-            // Random position within visible area
-            float x = ((float)rand() / RAND_MAX) * 6.0f - 3.0f;  // [-3, 3]
-            float y = ((float)rand() / RAND_MAX) * 4.0f - 2.0f;  // [-2, 2]
-            spawn_pos = glm::vec3(x, y, 0.0f);
-            dist = glm::length(spawn_pos - player->GetPosition());
+            } while (dist < MIN_SPAWN_DISTANCE && attempts < 50);
 
-            attempts++;
 
-        } while (dist < MIN_SPAWN_DISTANCE && attempts < 50);
+            new_enemy = new EnemyGameObject(spawn_pos, sprite_, &sprite_shader_, tex_[tex_harpoon],player,PATROLLING);
+        }
+        //HOOK
+        if (random_enemy_type < 2 && random_enemy_type >= 1) {
+            do {
+                // Random position within visible area
+                float x = ((float)rand() / RAND_MAX) * 6.0f - 3.0f;  // [-3, 3]
+                float y = ((float)rand() / RAND_MAX) * 1.0f + 4.0f;  // [4, 5]
+                spawn_pos = glm::vec3(x, y, 0.0f) + camera_position_;
+                dist = glm::length(spawn_pos - player->GetPosition());
+                MIN_SPAWN_DISTANCE = 2.5 + player->GetScale().x / 2 + 0.5;
+                attempts++;
 
-        //EnemyGameObject* new_enemy = new EnemyGameObject(spawn_pos, sprite_, &sprite_shader_, tex_[tex_shrimp]);
-        //new_enemy->SetEllipse(new_enemy->GetPosition(), 1.0f, 0.5f);
-        //new_enemy->SetTarget(player);
+            } while (dist < MIN_SPAWN_DISTANCE && attempts < 50);
 
-        //// Insert before background
-        //game_objects_.insert(game_objects_.end() - 1, new_enemy);
 
-        // Restart timer
-        enemy_spawn_timer_.Start(10.0);
+            new_enemy = new EnemyGameObject(spawn_pos, sprite_, &sprite_shader_, tex_[tex_hook], player, HOOK);
+        }
+        //NET
+        if (random_enemy_type >= 2) {
+            do {
+                // Random position within visible area
+                float x = ((float)rand() / RAND_MAX) * 6.0f - 3.0f;  // [-3, 3]
+                float y = ((float)rand() / RAND_MAX) * 1.0f + 4.0f;  // [4, 5]
+                spawn_pos = glm::vec3(x, y, 0.0f) + camera_position_;
+                dist = glm::length(spawn_pos - player->GetPosition());
+                MIN_SPAWN_DISTANCE = 2.5 + player->GetScale().x / 2 + 1.5;
+
+                attempts++;
+
+            } while (dist < MIN_SPAWN_DISTANCE && attempts < 50);
+
+
+            new_enemy = new EnemyGameObject(spawn_pos, sprite_, &sprite_shader_, tex_[tex_net], player, NET);
+            new_enemy->SetScale(glm::vec2(2.0, 2.0));
+        }
+
+        new_enemy->SetEllipse(new_enemy->GetPosition(), 1.0f, 0.5f);
+        new_enemy->SetTarget(player);
+
+        game_objects_.insert(game_objects_.end() , new_enemy);
+
+        //Restart timer
+        enemy_spawn_timer_.Start(4.0);
     }
 
     // End invincibility
@@ -787,7 +865,9 @@ void Game::Render(void){
     for (int i = 0; i < game_objects_.size(); i++) {
         //Do not render claw
         if (i == 1) {
-            continue;
+            if (!dynamic_cast<WeaponGameObject*>(game_objects_[i])->IsActive()) {
+                continue;
+            }
         }
         game_objects_[i]->Render(view_matrix, current_time_);
     }
@@ -934,7 +1014,7 @@ void Game::Init(void)
     // Initialize time
     current_time_ = 0.0;
     //Initalize collectibles;
-    collectibles_ = 3;
+    collectibles_ = 0;
     // Set zoom factor
     camera_zoom_ = 0.25f;
 

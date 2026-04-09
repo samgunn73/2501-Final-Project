@@ -5,7 +5,8 @@
 const enum CollectibleType {
     INVINCIBILITY = 0,
     AMMO = 1,
-    HEART = 2
+    HEART = 2,
+    CRAB = 3
 };
 
 namespace game {
