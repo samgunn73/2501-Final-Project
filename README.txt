@@ -1,5 +1,5 @@
 2501 FINAL PROJECT
-by:Sam Gunn, Oluwaseyi Olorunfemi
+by:Sam Gunn 101195559, Oluwaseyi Olorunfemi
 
 Controls:
 W : Jump
@@ -13,7 +13,7 @@ Checklist:
 
 1. Game Mechanics:
 The finishing condition of the game is simple but more than reaching the end.
-You must collect several of your crab children around the map and then reach your partner at the end of the level
+You must collect several of your crab children around the map and then return to your friend at the start of the level
 You cannot finish the level without a certain amount of crab collectibles completed. There is also a life system,
 if you reach 0 then you lose.
 
